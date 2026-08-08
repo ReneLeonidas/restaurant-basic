@@ -1,5 +1,5 @@
 // assets/js/common.js
-const PB_URL = 'http://127.0.0.1:8090'; // Cambiar según entorno
+const PB_URL = 'https://pocketbase.peruano365.org.pe';
 const pb = new PocketBase(PB_URL);
 
 function checkAuth() {
