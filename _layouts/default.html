@@ -1,50 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  {% include head.html %}
-  <style>
-    /* Ajustes para el navbar fijo */
-    body { padding-top: 3.5rem; }
-    .section { padding: 1.5rem; }
-    .container { max-width: 1200px; }
-  </style>
+    {% include head.html %}
+    <style>
+        /* Ajustes para el navbar fijo */
+        body {
+            padding-top: 3.5rem;
+        }
+
+        .section {
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+    </style>
 </head>
+
 <body>
-  {% include header.html %}
+    {% include header.html %}
 
-  <section class="section">
-    <div class="container">
-      {{ content }}
-    </div>
-  </section>
+    <section class="section">
+        <div class="container">
+            {{ content }}
+        </div>
+    </section>
 
-  {% include footer.html %}
+    {% include footer.html %}
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
-  <script src="{{ '/restaurant-basic/assets/js/common.js' | relative_url }}"></script>
-  <script>
-    (function() {
-      if (!checkAuth()) return;
-      updateUserBadge();
-    })();
-  </script>
-  <!-- Inicializar navbar burger -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const burger = document.querySelector('.navbar-burger');
-      const menu = document.querySelector('#navbarMenu');
-      burger.addEventListener('click', () => {
-        burger.classList.toggle('is-active');
-        menu.classList.toggle('is-active');
-      });
-    });
-  </script>
-  <!-- Script específico de cada página (se inyecta en el layout con page.scripts) -->
-  {% if page.scripts %}
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
+    <script src="{{ '/restaurant-basic/assets/js/common.js' | relative_url }}"></script>
+    <script>
+        (function () {
+            if (!checkAuth()) return;
+            updateUserBadge();
+        })();
+    </script>
+    
+    <!-- Script específico de cada página (se inyecta en el layout con page.scripts) -->
+    {% if page.scripts %}
     {% for script in page.scripts %}
-      <script src="{{ script | relative_url }}"></script>
+    <script src="{{ script | relative_url }}"></script>
     {% endfor %}
-  {% endif %}
+    {% endif %}
+
+    <!-- Inicializar navbar burger -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const burger = document.querySelector('.navbar-burger');
+            const menu = document.querySelector('#navbarMenu');
+            burger.addEventListener('click', () => {
+                burger.classList.toggle('is-active');
+                menu.classList.toggle('is-active');
+            });
+        });
+    </script>
 </body>
+
 </html>
