@@ -8,7 +8,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   try {
     await pb.collection('users').authWithPassword(email, password);
-    window.location.href = '{{ "/" | relative_url }}';
+    window.location.href = '{{ "/restaurant-basic" | relative_url }}';
   } catch (error) {
     errorDiv.textContent = error.message || 'Credenciales incorrectas';
     errorDiv.classList.remove('hidden');

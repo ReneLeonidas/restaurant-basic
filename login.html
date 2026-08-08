@@ -4,48 +4,49 @@ title: Iniciar sesión
 ---
 
 <div class="has-text-centered mb-5">
-  <i class="fas fa-utensils is-size-1 has-text-purple"></i>
-  <h1 class="title is-3">Restaurante Delicias</h1>
-  <p class="subtitle is-6">Inicia sesión para gestionar</p>
+    <i class="fas fa-utensils is-size-1 has-text-purple"></i>
+    <h1 class="title is-3">Restaurante Delicias</h1>
+    <p class="subtitle is-6">Inicia sesión para gestionar</p>
 </div>
 
 <form id="loginForm">
-  <div class="field">
-    <label class="label">Email</label>
-    <div class="control">
-      <input class="input" type="email" id="email" placeholder="tu@email.com" required />
+    <div class="field">
+        <label class="label">Email</label>
+        <div class="control">
+            <input class="input" type="email" id="email" placeholder="tu@email.com" required />
+        </div>
     </div>
-  </div>
-  <div class="field">
-    <label class="label">Contraseña</label>
-    <div class="control">
-      <input class="input" type="password" id="password" placeholder="••••••••" required />
+    <div class="field">
+        <label class="label">Contraseña</label>
+        <div class="control">
+            <input class="input" type="password" id="password" placeholder="••••••••" required />
+        </div>
     </div>
-  </div>
-  <div class="field">
-    <div class="control">
-      <button class="button is-primary is-fullwidth" type="submit"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+    <div class="field">
+        <div class="control">
+            <button class="button is-primary is-fullwidth" type="submit"><i class="fas fa-sign-in-alt"></i>
+                Ingresar</button>
+        </div>
     </div>
-  </div>
 </form>
 <p class="has-text-centered is-size-7">
-  ¿No tienes cuenta? <a href="register.html">Regístrate aquí</a>
+    ¿No tienes cuenta? <a href="register.html">Regístrate aquí</a>
 </p>
 <div id="loginError" class="has-text-danger has-text-centered is-size-7 mt-2" style="display:none;"></div>
 
 <script>
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const errorDiv = document.getElementById('loginError');
-    errorDiv.style.display = 'none';
-    try {
-      await pb.collection('users').authWithPassword(email, password);
-      window.location.href = 'index.html';
-    } catch (err) {
-      errorDiv.textContent = err.message || 'Credenciales incorrectas';
-      errorDiv.style.display = 'block';
-    }
-  });
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.style.display = 'none';
+        try {
+            await pb.collection('users').authWithPassword(email, password);
+            window.location.href = 'index.html';
+        } catch (err) {
+            errorDiv.textContent = err.message || 'Credenciales incorrectas';
+            errorDiv.style.display = 'block';
+        }
+    });
 </script>
