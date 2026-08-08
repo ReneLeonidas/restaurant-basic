@@ -1,13 +1,39 @@
-<header class="header">
-  <h1 class="header-title">
-    <i class="fas fa-utensils"></i> Restaurante <span style="color: #f9ca24;">Delicias</span>
-  </h1>
-  <div class="header-user">
-    <span class="user-badge" id="userEmail">
-      <i class="fas fa-user-circle"></i> usuario@example.com
-    </span>
-    <button class="logout-btn" onclick="logout()">
-      <i class="fas fa-sign-out-alt"></i> Salir
-    </button>
+<nav class="navbar is-fixed-top is-dark" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{{ '/' | relative_url }}">
+        <i class="fas fa-utensils"></i>&nbsp; Restaurante Delicias
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="{{ '/' | relative_url }}">
+          <i class="fas fa-chart-simple"></i> Dashboard
+        </a>
+        <a class="navbar-item" href="{{ '/sales.html' | relative_url }}">
+          <i class="fas fa-cash-register"></i> Vender
+        </a>
+        <a class="navbar-item" href="{{ '/menus.html' | relative_url }}">
+          <i class="fas fa-edit"></i> Menús
+        </a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <span class="tag is-info is-light" id="userEmail">
+            <i class="fas fa-user-circle"></i> <span id="userEmailText">usuario@example.com</span>
+          </span>
+          <button class="button is-danger is-light" id="logoutBtn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Salir
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</header>
+</nav>

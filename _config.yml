@@ -1,14 +1,4 @@
-# _config.yml
 title: Restaurante Delicias
-description: Gestión de ventas y menús
-baseurl: ""  # Si está en un subdirectorio, ej: "/mi-proyecto"
-url: "https://reneleonidas.github.io"  # Cambia por tu URL
-permalink: pretty
-
-# Excluir archivos del build
-exclude:
-  - .gitignore
-  - README.md
-  - node_modules
-  - package.json
-  - package-lock.json
+description: Sistema de gestión de ventas y menús
+baseurl: "" # si está en un subdirectorio, ej: "/restaurante"
+url: "https://reneleonidas.github.io" # tu URL de GitHub Pages

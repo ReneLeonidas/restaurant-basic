@@ -1,52 +1,68 @@
 ---
 layout: default
 title: Ventas
-custom_js: "/assets/js/sales.js"
-onload_js: "initSales();"
 ---
-<div class="card mb-6">
-  <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-plus-circle text-green-500 mr-2"></i>Nueva venta</h2>
-  <form id="saleForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-    <div>
-      <label class="block text-sm font-medium text-gray-600">Tipo de comida</label>
-      <select id="tipoComida" class="input">
-        <option value="breakfast">Desayuno</option>
-        <option value="lunch">Almuerzo</option>
-        <option value="dinner">Cena</option>
-      </select>
+
+<div class="box">
+  <h2 class="title is-5"><i class="fas fa-plus-circle has-text-success"></i> Nueva venta</h2>
+  <form id="saleForm">
+    <div class="field">
+      <label class="label">Tipo de comida</label>
+      <div class="control">
+        <div class="select is-fullwidth">
+          <select id="tipoComida">
+            <option value="breakfast">Desayuno</option>
+            <option value="lunch">Almuerzo</option>
+            <option value="dinner">Cena</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-600">Menú</label>
-      <select id="menuSelect" class="input" required>
-        <option value="">Seleccionar</option>
-      </select>
+    <div class="field">
+      <label class="label">Menú</label>
+      <div class="control">
+        <div class="select is-fullwidth">
+          <select id="menuSelect">
+            <option value="">Seleccionar</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-600">Cantidad</label>
-      <input type="number" id="cantidad" value="1" min="1" class="input" />
+    <div class="field">
+      <label class="label">Cantidad</label>
+      <div class="control">
+        <input class="input" type="number" id="cantidad" value="1" min="1" />
+      </div>
     </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-600">Notas</label>
-      <input type="text" id="notas" placeholder="Mesa, para llevar..." class="input" />
+    <div class="field">
+      <label class="label">Notas</label>
+      <div class="control">
+        <input class="input" type="text" id="notas" placeholder="Mesa, para llevar..." />
+      </div>
     </div>
-    <div class="md:col-span-4 flex justify-between items-center">
-      <div class="text-sm text-muted">
-        <span>Precio unitario: <strong id="displayPrice">—</strong></span>
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-primary" type="submit"><i class="fas fa-check-circle"></i> Registrar</button>
+      </div>
+      <div class="control">
+        <span>Precio: <strong id="displayPrice">—</strong></span>
         <span class="ml-4">Total: <strong id="displayTotal">S/ 0.00</strong></span>
       </div>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Registrar</button>
     </div>
   </form>
 </div>
 
-<div class="card">
-  <div class="flex flex-wrap gap-2 mb-4">
-    <button class="filter-btn active" data-filter="all">Todos</button>
-    <button class="filter-btn" data-filter="breakfast">Desayuno</button>
-    <button class="filter-btn" data-filter="lunch">Almuerzo</button>
-    <button class="filter-btn" data-filter="dinner">Cena</button>
+<!-- Listado de ventas con filtros -->
+<div class="box">
+  <div class="buttons">
+    <button class="button is-small is-primary is-outlined filter-btn" data-filter="all">Todos</button>
+    <button class="button is-small filter-btn" data-filter="breakfast">Desayuno</button>
+    <button class="button is-small filter-btn" data-filter="lunch">Almuerzo</button>
+    <button class="button is-small filter-btn" data-filter="dinner">Cena</button>
   </div>
-  <div id="salesList" class="space-y-2 max-h-96 overflow-y-auto">
-    <p class="text-center text-muted">Cargando...</p>
+  <div id="salesList">
+    <p class="has-text-centered has-text-grey-light">Cargando...</p>
   </div>
 </div>
+
+<script src="{{ '/assets/js/sales.js' | relative_url }}"></script>

@@ -1,0 +1,33 @@
+/* Personalizaciones sobre Bulma */
+.has-background-gradient {
+  background: linear-gradient(135deg, #ffeaa7, #fd79a8, #a29bfe);
+}
+.card-shadow {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.stat-box {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.2rem;
+  border-left: 6px solid #74b9ff;
+}
+.stat-box.breakfast { border-left-color: #fdcb6e; }
+.stat-box.lunch { border-left-color: #55efc4; }
+.stat-box.dinner { border-left-color: #ff7675; }
+.stat-box.total { border-left-color: #74b9ff; }
+.stat-label { font-size: 0.85rem; color: #6b7280; }
+.stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 0.2rem; }
+
+/* Badges tipo comida */
+.badge-breakfast {
+  background: #fdcb6e;
+  color: #2d3436;
+}
+.badge-lunch {
+  background: #55efc4;
+  color: #2d3436;
+}
+.badge-dinner {
+  background: #ff7675;
+  color: white;
+}

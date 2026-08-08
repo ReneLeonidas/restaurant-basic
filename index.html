@@ -1,19 +1,57 @@
 ---
 layout: default
 title: Dashboard
-custom_js: "/assets/js/dashboard.js"
-onload_js: "loadDashboard();"
 ---
-<div class="stats-grid" id="summaryCards">
-  <div class="stat-box total"><div class="stat-label">Total vendido</div><div class="stat-value" id="totalRevenue">S/ 0.00</div></div>
-  <div class="stat-box breakfast"><div class="stat-label">Desayuno</div><div class="stat-value" id="breakfastRevenue">S/ 0.00</div></div>
-  <div class="stat-box lunch"><div class="stat-label">Almuerzo</div><div class="stat-value" id="lunchRevenue">S/ 0.00</div></div>
-  <div class="stat-box dinner"><div class="stat-label">Cena</div><div class="stat-value" id="dinnerRevenue">S/ 0.00</div></div>
-</div>
 
-<div class="card">
-  <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-list-ul text-pink-500 mr-2"></i>Últimas ventas</h2>
-  <div id="recentSales" class="space-y-2 max-h-96 overflow-y-auto">
-    <p class="text-center text-muted">Cargando...</p>
+<div class="columns is-multiline">
+  <div class="column is-3">
+    <div class="stat-box total">
+      <div class="stat-label">Total vendido</div>
+      <div class="stat-value" id="totalRevenue">S/ 0.00</div>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="stat-box breakfast">
+      <div class="stat-label">Desayuno</div>
+      <div class="stat-value" id="breakfastRevenue">S/ 0.00</div>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="stat-box lunch">
+      <div class="stat-label">Almuerzo</div>
+      <div class="stat-value" id="lunchRevenue">S/ 0.00</div>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="stat-box dinner">
+      <div class="stat-label">Cena</div>
+      <div class="stat-value" id="dinnerRevenue">S/ 0.00</div>
+    </div>
   </div>
 </div>
+
+<div class="box">
+  <h2 class="title is-5"><i class="fas fa-list-ul has-text-pink"></i> Últimas ventas</h2>
+  <div id="recentSales">
+    <p class="has-text-centered has-text-grey-light">Cargando...</p>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // El layout ya ejecuta checkAuth y updateUserBadge
+    async function loadDashboard() {
+      try {
+        const result = await pb.collection('sales').getList(1, 10, {
+          sort: '-created',
+          expand: 'menu_id'
+        });
+        const sales = result.items;
+        // ... lógica para mostrar
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    loadDashboard();
+  })();
+</script>
