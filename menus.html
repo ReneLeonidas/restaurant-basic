@@ -1,244 +1,39 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestión de Menús</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <style>
-        body {
-            background: linear-gradient(135deg, #fdcb6e, #e17055, #00b894);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
-        .card-glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .btn-success-joy {
-            background: #00b894;
-            color: white;
-            border-radius: 9999px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .btn-success-joy:hover { background: #00a381; transform: scale(1.02); }
-        .btn-danger-joy {
-            background: #ff7675;
-            color: white;
-            border-radius: 9999px;
-            padding: 0.3rem 1rem;
-            font-weight: 600;
-        }
-        .btn-danger-joy:hover { background: #e74c3c; }
-        .badge-tipo {
-            display: inline-block;
-            padding: 0.2rem 0.8rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .badge-breakfast { background: #fdcb6e; color: #2d3436; }
-        .badge-lunch { background: #55efc4; color: #2d3436; }
-        .badge-dinner { background: #ff7675; color: #2d3436; }
-        .user-badge {
-            background: white;
-            border-radius: 9999px;
-            padding: 0.3rem 1.2rem;
-            font-weight: 500;
-            color: #2d3436;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .logout-btn {
-            background: #ff7675;
-            color: white;
-            border-radius: 9999px;
-            padding: 0.3rem 1.2rem;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .logout-btn:hover { background: #e74c3c; }
-    </style>
-</head>
-<body class="p-4 md:p-8 font-sans antialiased">
-
-    <div class="max-w-4xl mx-auto">
-        <!-- Encabezado -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 class="text-3xl font-extrabold text-white drop-shadow-lg flex items-center gap-3">
-                <i class="fas fa-utensil-spoon text-yellow-300"></i> Menús
-            </h1>
-            <div class="flex items-center gap-3 mt-3 md:mt-0">
-                <span class="user-badge" id="userEmail"><i class="fas fa-user-circle"></i> usuario@example.com</span>
-                <span class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Salir</span>
-            </div>
-        </div>
-
-        <!-- Navegación -->
-        <div class="flex gap-3 mb-6">
-            <a href="index.html" class="btn-joy bg-blue-400 hover:bg-blue-500"><i class="fas fa-chart-simple"></i> Dashboard</a>
-            <a href="sales.html" class="btn-joy bg-green-400 hover:bg-green-500"><i class="fas fa-cash-register"></i> Vender</a>
-        </div>
-
-        <!-- Formulario -->
-        <div class="card-glass mb-6">
-            <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-plus-circle text-green-500 mr-2"></i>Nuevo plato</h2>
-            <form id="menuForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <input type="hidden" id="editId" value="" />
-                <div>
-                    <label class="block text-sm font-medium text-gray-600">Tipo</label>
-                    <select id="tipo" class="w-full rounded-full border-0 bg-gray-100 px-4 py-2 focus:ring-2 focus:ring-yellow-400">
-                        <option value="breakfast">Desayuno</option>
-                        <option value="lunch">Almuerzo</option>
-                        <option value="dinner">Cena</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600">Nombre</label>
-                    <input type="text" id="nombre" placeholder="Ej. Lomo saltado" class="w-full rounded-full border-0 bg-gray-100 px-4 py-2 focus:ring-2 focus:ring-yellow-400" required />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600">Precio (S/)</label>
-                    <input type="number" id="precio" placeholder="7.00" step="0.01" min="0" class="w-full rounded-full border-0 bg-gray-100 px-4 py-2 focus:ring-2 focus:ring-yellow-400" required />
-                </div>
-                <div class="flex items-end gap-2">
-                    <button type="submit" id="submitBtn" class="btn-success-joy w-full"><i class="fas fa-save"></i> Guardar</button>
-                    <button type="button" id="cancelBtn" class="btn-danger-joy hidden">Cancelar</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Lista de menús -->
-        <div class="card-glass">
-            <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-list text-pink-500 mr-2"></i>Platos registrados</h2>
-            <div id="menuList" class="space-y-2 max-h-96 overflow-y-auto">
-                <p class="text-gray-500 text-center">Cargando...</p>
-            </div>
-        </div>
+---
+layout: default
+title: Menús
+custom_js: "/assets/js/menus.js"
+onload_js: "initMenus();"
+---
+<div class="card mb-6">
+  <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-plus-circle text-green-500 mr-2"></i>Nuevo plato</h2>
+  <form id="menuForm" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+    <input type="hidden" id="editId" value="" />
+    <div>
+      <label class="block text-sm font-medium text-gray-600">Tipo</label>
+      <select id="tipo" class="input">
+        <option value="breakfast">Desayuno</option>
+        <option value="lunch">Almuerzo</option>
+        <option value="dinner">Cena</option>
+      </select>
     </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-600">Nombre</label>
+      <input type="text" id="nombre" placeholder="Ej. Lomo saltado" class="input" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-600">Precio (S/)</label>
+      <input type="number" id="precio" placeholder="7.00" step="0.01" min="0" class="input" required />
+    </div>
+    <div class="flex items-end gap-2">
+      <button type="submit" id="submitBtn" class="btn btn-success w-full"><i class="fas fa-save"></i> Guardar</button>
+      <button type="button" id="cancelBtn" class="btn btn-danger hidden">Cancelar</button>
+    </div>
+  </form>
+</div>
 
-    <script src="js/common.js"></script>
-    <script>
-        (function() {
-            if (!checkAuth()) return;
-
-            const user = getCurrentUser();
-            if (user) {
-                document.getElementById('userEmail').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
-            }
-
-            // Cargar menús
-            async function loadMenus() {
-                try {
-                    const result = await pb.collection('menus').getList(1, 50, { sort: 'created' });
-                    renderMenuList(result.items);
-                } catch (error) {
-                    document.getElementById('menuList').innerHTML = `<p class="text-red-500">${error.message}</p>`;
-                }
-            }
-
-            function renderMenuList(menus) {
-                const container = document.getElementById('menuList');
-                if (!menus.length) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">No hay platos, ¡agrega uno!</p>';
-                    return;
-                }
-                let html = '';
-                menus.forEach(m => {
-                    const badge = `badge-${m.tipo}`;
-                    const tipoLabel = { breakfast: 'Desayuno', lunch: 'Almuerzo', dinner: 'Cena' }[m.tipo] || m.tipo;
-                    html += `
-                        <div class="flex flex-wrap items-center justify-between bg-white/70 p-3 rounded-xl shadow-sm border border-gray-100">
-                            <div class="flex items-center gap-3 flex-wrap">
-                                <span class="badge-tipo ${badge}">${tipoLabel}</span>
-                                <span class="font-semibold text-gray-800">${m.nombre}</span>
-                                <span class="text-sm text-gray-600">S/ ${Number(m.precio).toFixed(2)}</span>
-                            </div>
-                            <div class="flex gap-2 mt-2 md:mt-0">
-                                <button onclick="editMenu('${m.id}')" class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded-full text-sm"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteMenu('${m.id}')" class="btn-danger-joy text-sm"><i class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
-
-            // Guardar
-            document.getElementById('menuForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const editId = document.getElementById('editId').value;
-                const tipo = document.getElementById('tipo').value;
-                const nombre = document.getElementById('nombre').value.trim();
-                const precio = parseFloat(document.getElementById('precio').value);
-
-                if (!nombre || isNaN(precio) || precio < 0) {
-                    alert('Datos inválidos');
-                    return;
-                }
-
-                const data = { tipo, nombre, precio };
-                try {
-                    let result;
-                    if (editId) {
-                        result = await pb.collection('menus').update(editId, data);
-                    } else {
-                        result = await pb.collection('menus').create(data);
-                    }
-                    resetForm();
-                    loadMenus();
-                    alert(editId ? 'Actualizado' : 'Agregado');
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
-            });
-
-            // Editar
-            window.editMenu = async function(id) {
-                try {
-                    const record = await pb.collection('menus').getOne(id);
-                    document.getElementById('editId').value = record.id;
-                    document.getElementById('tipo').value = record.tipo;
-                    document.getElementById('nombre').value = record.nombre;
-                    document.getElementById('precio').value = record.precio;
-                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar';
-                    document.getElementById('cancelBtn').classList.remove('hidden');
-                } catch (error) {
-                    alert('Error al cargar datos: ' + error.message);
-                }
-            };
-
-            // Cancelar
-            document.getElementById('cancelBtn').addEventListener('click', resetForm);
-
-            function resetForm() {
-                document.getElementById('editId').value = '';
-                document.getElementById('tipo').value = 'breakfast';
-                document.getElementById('nombre').value = '';
-                document.getElementById('precio').value = '';
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Guardar';
-                document.getElementById('cancelBtn').classList.add('hidden');
-            }
-
-            // Eliminar
-            window.deleteMenu = async function(id) {
-                if (!confirm('¿Eliminar este plato?')) return;
-                try {
-                    await pb.collection('menus').delete(id);
-                    loadMenus();
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
-            };
-
-            loadMenus();
-        })();
-    </script>
-</body>
-</html>
+<div class="card">
+  <h2 class="text-xl font-bold text-gray-700 mb-4"><i class="fas fa-list text-pink-500 mr-2"></i>Platos registrados</h2>
+  <div id="menuList" class="space-y-2 max-h-96 overflow-y-auto">
+    <p class="text-center text-muted">Cargando...</p>
+  </div>
+</div>

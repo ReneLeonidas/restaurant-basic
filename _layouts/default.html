@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page.title }} · {{ site.title }}</title>
+  
+  <!-- Tailwind (opcional) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- CSS común -->
+  <link rel="stylesheet" href="{{ '/assets/css/common.css' | relative_url }}" />
+  
+  <!-- Estilos específicos de la página (si los hay) -->
+  {% if page.custom_css %}
+    <link rel="stylesheet" href="{{ page.custom_css | relative_url }}" />
+  {% endif %}
+  
+  <!-- Meta tags adicionales -->
+  {% if page.description %}
+    <meta name="description" content="{{ page.description }}" />
+  {% endif %}
+</head>
+<body>
+  <div class="container">
+    {% include header.html %}
+    {% include nav.html %}
+    
+    <main>
+      {{ content }}
+    </main>
+    
+    {% include footer.html %}
+  </div>
+  
+  <!-- Scripts al final -->
+  {% include scripts.html %}
+  
+  <!-- Script específico de la página -->
+  {% if page.custom_js %}
+    <script src="{{ page.custom_js | relative_url }}"></script>
+  {% endif %}
+  
+  <!-- Inicialización común -->
+  <script>
+    (function() {
+      if (!checkAuth()) return;
+      updateUserBadge();
+      {% if page.onload_js %}
+        {{ page.onload_js }}
+      {% endif %}
+    })();
+  </script>
+</body>
+</html>
