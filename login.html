@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #a29bfe, #fd79a8);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .btn-login {
+            background: #6c5ce7;
+            color: white;
+            border-radius: 9999px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            transition: 0.2s;
+            width: 100%;
+        }
+        .btn-login:hover { background: #5f3dc4; transform: scale(1.02); }
+        .input-joy {
+            border-radius: 9999px;
+            border: none;
+            background: #f0f0f0;
+            padding: 0.7rem 1.2rem;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .input-joy:focus {
+            outline: 2px solid #a29bfe;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-6">
+            <i class="fas fa-utensils text-5xl text-purple-500"></i>
+            <h1 class="text-2xl font-bold text-gray-800 mt-2">Restaurante Delicias</h1>
+            <p class="text-gray-500">Inicia sesión para gestionar tu negocio</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="email" class="input-joy" placeholder="tu@email.com" required />
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <input type="password" id="password" class="input-joy" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt mr-2"></i> Ingresar</button>
+        </form>
+
+        <p class="text-center text-sm text-gray-500 mt-4">
+            ¿No tienes cuenta? <a href="register.html" class="text-purple-600 font-semibold">Regístrate aquí</a>
+        </p>
+        <div id="loginError" class="text-red-500 text-sm text-center mt-2 hidden"></div>
+    </div>
+
+    <script>
+        const pb = new PocketBase('https://pocketbase.peruano365.org.pe'); // Cambia por tu URL
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.classList.add('hidden');
+
+            try {
+                await pb.collection('users').authWithPassword(email, password);
+                // Redirigir al dashboard
+                window.location.href = 'index.html';
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Credenciales incorrectas';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

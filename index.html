@@ -3,679 +3,180 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurante - Gestión de Ventas y Menús</title>
+    <title>Dashboard · Restaurante</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        .card { @apply bg-white rounded-xl shadow-md p-4 mb-4; }
-        .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition; }
-        .btn-success { @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition; }
-        .btn-danger { @apply bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg transition; }
-        .btn-warning { @apply bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg transition; }
-        .btn-outline { @apply border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded-lg transition; }
-        .badge { @apply inline-block px-3 py-1 text-sm font-semibold rounded-full; }
-        .badge-breakfast { @apply bg-yellow-200 text-yellow-800; }
-        .badge-lunch { @apply bg-green-200 text-green-800; }
-        .badge-dinner { @apply bg-red-200 text-red-800; }
-        .mode-btn { @apply flex-1 text-center py-3 px-2 rounded-xl border-2 border-gray-200 transition cursor-pointer; }
-        .mode-btn.active { @apply border-blue-500 bg-blue-50; }
-        .mode-btn i { @apply text-2xl block mb-1; }
-        .toast { @apply fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300; opacity: 0; pointer-events: none; }
-        .toast.show { opacity: 1; pointer-events: auto; }
-        .menu-item { @apply flex items-center justify-between border-b border-gray-100 py-2; }
-        .menu-item .info { @apply flex-1; }
-        .menu-item .actions { @apply flex gap-1; }
+        body {
+            background: linear-gradient(135deg, #ffeaa7, #fd79a8, #a29bfe);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-joy {
+            background: #fdcb6e;
+            color: #2d3436;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 0.5rem 1.5rem;
+            transition: 0.2s;
+        }
+        .btn-joy:hover {
+            background: #f9ca24;
+            transform: scale(1.02);
+        }
+        .stat-box {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 6px solid #fd79a8;
+        }
+        .stat-box.breakfast { border-left-color: #fdcb6e; }
+        .stat-box.lunch { border-left-color: #55efc4; }
+        .stat-box.dinner { border-left-color: #ff7675; }
+        .stat-box.total { border-left-color: #74b9ff; }
+        .user-badge {
+            background: white;
+            border-radius: 9999px;
+            padding: 0.3rem 1.2rem;
+            font-weight: 500;
+            color: #2d3436;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .logout-btn {
+            background: #ff7675;
+            color: white;
+            border-radius: 9999px;
+            padding: 0.3rem 1.2rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #e74c3c;
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased pb-20">
+<body class="p-4 md:p-8 font-sans antialiased">
 
-    <!-- Toast -->
-    <div id="toast" class="toast"></div>
-
-    <div class="container max-w-md mx-auto px-4 py-4">
-
-        <!-- Título -->
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-4">
-            <i class="fas fa-utensils text-blue-600"></i> Restaurante Delicias
-        </h1>
-
-        <!-- ========== SELECCIÓN DE MODO ========== -->
-        <div class="card">
-            <h2 class="text-lg font-semibold text-gray-700 mb-2">
-                <i class="fas fa-toggle-on mr-2"></i>Activar tipo de comida
-            </h2>
-            <div class="flex gap-2">
-                <div id="modeBreakfast" class="mode-btn" data-mode="breakfast">
-                    <i class="fas fa-sun"></i>
-                    <span class="text-sm">Desayuno</span>
-                </div>
-                <div id="modeLunch" class="mode-btn" data-mode="lunch">
-                    <i class="fas fa-cloud-sun"></i>
-                    <span class="text-sm">Almuerzo</span>
-                </div>
-                <div id="modeDinner" class="mode-btn" data-mode="dinner">
-                    <i class="fas fa-moon"></i>
-                    <span class="text-sm">Cena</span>
-                </div>
-            </div>
-            <div class="mt-2 text-xs text-gray-500 text-center">
-                Modo actual: <span id="currentModeLabel" class="font-semibold text-blue-600">Ninguno</span>
+    <div class="max-w-4xl mx-auto">
+        <!-- Encabezado con usuario y logout -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h1 class="text-4xl font-extrabold text-white drop-shadow-lg flex items-center gap-3">
+                <i class="fas fa-utensils text-yellow-300"></i> Restaurante <span class="text-yellow-200">Delicias</span>
+            </h1>
+            <div class="flex items-center gap-3 mt-3 md:mt-0">
+                <span class="user-badge" id="userEmail"><i class="fas fa-user-circle"></i> usuario@example.com</span>
+                <span class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Salir</span>
             </div>
         </div>
 
-        <!-- ========== REGISTRAR VENTA ========== -->
-        <div class="card">
-            <h2 class="text-lg font-semibold text-gray-700 mb-2">
-                <i class="fas fa-plus-circle mr-2 text-green-600"></i>Nueva Venta
-            </h2>
-            <form id="saleForm">
-                <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Menú</label>
-                    <select id="menuSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <option value="">Selecciona un plato</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
-                    <input type="number" id="quantity" value="1" min="1" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
-                    <input type="text" id="notes" placeholder="Mesa, para llevar..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <button type="submit" class="btn-success w-full">
-                    <i class="fas fa-check-circle mr-1"></i> Registrar Venta
-                </button>
-            </form>
-            <div class="mt-2 flex justify-between text-xs text-gray-500">
-                <span>Precio unitario: <span id="displayPrice">—</span></span>
-                <span>Total: <span id="displayTotal">S/ 0.00</span></span>
+        <!-- Navegación rápida -->
+        <div class="flex gap-3 mb-6">
+            <a href="sales.html" class="btn-joy"><i class="fas fa-cash-register"></i> Vender</a>
+            <a href="menus.html" class="btn-joy bg-pink-300 hover:bg-pink-400"><i class="fas fa-edit"></i> Menús</a>
+        </div>
+
+        <!-- Resumen de ventas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="summaryCards">
+            <div class="stat-box total"><div class="text-sm text-gray-500">Total vendido</div><div class="text-2xl font-bold" id="totalRevenue">S/ 0.00</div></div>
+            <div class="stat-box breakfast"><div class="text-sm text-gray-500">Desayuno</div><div class="text-2xl font-bold" id="breakfastRevenue">S/ 0.00</div></div>
+            <div class="stat-box lunch"><div class="text-sm text-gray-500">Almuerzo</div><div class="text-2xl font-bold" id="lunchRevenue">S/ 0.00</div></div>
+            <div class="stat-box dinner"><div class="text-sm text-gray-500">Cena</div><div class="text-2xl font-bold" id="dinnerRevenue">S/ 0.00</div></div>
+        </div>
+
+        <!-- Últimas ventas -->
+        <div class="glass-card p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-list-ul text-pink-500 mr-2"></i>Últimas ventas</h2>
+            <div id="recentSales" class="space-y-2 max-h-96 overflow-y-auto">
+                <p class="text-gray-500 text-center">Cargando...</p>
             </div>
         </div>
 
-        <!-- ========== ADMINISTRAR MENÚS (colapsable) ========== -->
-        <div class="card">
-            <button id="toggleMenuAdmin" class="w-full text-left text-lg font-semibold text-gray-700 flex items-center justify-between">
-                <span><i class="fas fa-edit mr-2 text-purple-600"></i>Administrar Menús</span>
-                <i class="fas fa-chevron-down transition-transform" id="menuAdminIcon"></i>
-            </button>
-            <div id="menuAdminPanel" class="mt-3 hidden">
-                <!-- Formulario para agregar/editar -->
-                <form id="menuForm" class="mb-4">
-                    <input type="hidden" id="editMenuId" value="" />
-                    <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700">Tipo</label>
-                        <select id="menuTipo" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required>
-                            <option value="breakfast">Desayuno</option>
-                            <option value="lunch">Almuerzo</option>
-                            <option value="dinner">Cena</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700">Nombre del plato</label>
-                        <input type="text" id="menuNombre" placeholder="Ej. Lomo saltado" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
-                    </div>
-                    <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700">Precio (S/)</label>
-                        <input type="number" id="menuPrecio" placeholder="7.00" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="submit" id="menuSubmitBtn" class="btn-primary flex-1 text-sm">
-                            <i class="fas fa-plus mr-1"></i> Agregar
-                        </button>
-                        <button type="button" id="cancelEditMenu" class="btn-outline text-sm hidden">Cancelar</button>
-                    </div>
-                </form>
-
-                <!-- Lista de menús -->
-                <div id="menuListContainer">
-                    <p class="text-center text-gray-400 py-2 text-sm">Cargando menús...</p>
-                </div>
-                <button id="refreshMenusBtn" class="btn-outline w-full mt-2 text-sm">
-                    <i class="fas fa-sync-alt mr-1"></i> Recargar desde Google
-                </button>
-            </div>
-        </div>
-
-        <!-- ========== REPORTES ========== -->
-        <div class="card">
-            <h2 class="text-lg font-semibold text-gray-700 mb-2">
-                <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Reportes
-            </h2>
-            <!-- Filtros -->
-            <div class="flex flex-wrap gap-1 mb-3">
-                <button class="filter-btn bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="all">Todos</button>
-                <button class="filter-btn bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="breakfast">Desayuno</button>
-                <button class="filter-btn bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="lunch">Almuerzo</button>
-                <button class="filter-btn bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="dinner">Cena</button>
-            </div>
-            <!-- Resumen -->
-            <div id="summaryContainer" class="grid grid-cols-2 gap-2 mb-3 text-sm">
-                <div class="bg-gray-50 p-2 rounded-lg text-center">
-                    <div class="text-gray-500">Total ventas</div>
-                    <div class="font-bold text-lg" id="totalCount">0</div>
-                </div>
-                <div class="bg-gray-50 p-2 rounded-lg text-center">
-                    <div class="text-gray-500">Ingresos totales</div>
-                    <div class="font-bold text-lg" id="totalRevenue">S/ 0.00</div>
-                </div>
-            </div>
-            <!-- Lista de ventas -->
-            <div id="salesList" class="max-h-80 overflow-y-auto">
-                <p class="text-center text-gray-400 py-4">No hay ventas registradas.</p>
-            </div>
-        </div>
-
+        <footer class="mt-8 text-center text-white/70 text-sm">
+            <i class="fas fa-heart text-red-400"></i> Hecho con sabor
+        </footer>
     </div>
 
+    <script src="js/common.js"></script>
     <script>
-        // ============================================================
-        //  CONFIGURACIÓN
-        // ============================================================
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyw0dC-gnLEYd-uBzJCJmtbwxqaRH2GUggcvgWiDNXFoCVlTB-rVeCUc-oCjv_dFH4/exec';
+        (function() {
+            // Verificar autenticación
+            if (!checkAuth()) return;
 
-        // ============================================================
-        //  ESTADO
-        // ============================================================
-        let menus = [];
-        let sales = [];
-        let activeMode = null;
-        let currentFilter = 'all';
-        let editingMenuId = null;
-
-        // ============================================================
-        //  DOM REFS
-        // ============================================================
-        const menuSelect = document.getElementById('menuSelect');
-        const quantityInput = document.getElementById('quantity');
-        const notesInput = document.getElementById('notes');
-        const saleForm = document.getElementById('saleForm');
-        const displayPrice = document.getElementById('displayPrice');
-        const displayTotal = document.getElementById('displayTotal');
-        const toastEl = document.getElementById('toast');
-        const currentModeLabel = document.getElementById('currentModeLabel');
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const totalCount = document.getElementById('totalCount');
-        const totalRevenue = document.getElementById('totalRevenue');
-        const salesList = document.getElementById('salesList');
-
-        // Menú admin
-        const toggleMenuAdmin = document.getElementById('toggleMenuAdmin');
-        const menuAdminPanel = document.getElementById('menuAdminPanel');
-        const menuAdminIcon = document.getElementById('menuAdminIcon');
-        const menuForm = document.getElementById('menuForm');
-        const editMenuId = document.getElementById('editMenuId');
-        const menuTipo = document.getElementById('menuTipo');
-        const menuNombre = document.getElementById('menuNombre');
-        const menuPrecio = document.getElementById('menuPrecio');
-        const menuSubmitBtn = document.getElementById('menuSubmitBtn');
-        const cancelEditBtn = document.getElementById('cancelEditMenu');
-        const menuListContainer = document.getElementById('menuListContainer');
-        const refreshMenusBtn = document.getElementById('refreshMenusBtn');
-
-        // Modos
-        const modeBtns = {
-            breakfast: document.getElementById('modeBreakfast'),
-            lunch: document.getElementById('modeLunch'),
-            dinner: document.getElementById('modeDinner')
-        };
-
-        // ============================================================
-        //  UTILIDADES
-        // ============================================================
-        function showToast(msg, duration = 3000) {
-            toastEl.textContent = msg;
-            toastEl.classList.add('show');
-            clearTimeout(toastEl._timeout);
-            toastEl._timeout = setTimeout(() => {
-                toastEl.classList.remove('show');
-            }, duration);
-        }
-
-        function formatCurrency(amount) {
-            return 'S/ ' + Number(amount).toFixed(2);
-        }
-
-        function getTipoLabel(tipo) {
-            const map = { breakfast: 'Desayuno', lunch: 'Almuerzo', dinner: 'Cena' };
-            return map[tipo] || tipo;
-        }
-
-        function getTipoBadge(tipo) {
-            const map = { breakfast: 'badge-breakfast', lunch: 'badge-lunch', dinner: 'badge-dinner' };
-            return map[tipo] || '';
-        }
-
-        // ============================================================
-        //  LOCAL STORAGE
-        // ============================================================
-        function saveMenusToStorage(menusData) {
-            localStorage.setItem('restaurant_menus', JSON.stringify(menusData));
-        }
-
-        function loadMenusFromStorage() {
-            const data = localStorage.getItem('restaurant_menus');
-            if (data) {
-                try { return JSON.parse(data); } catch (e) { return null; }
-            }
-            return null;
-        }
-
-        // ============================================================
-        //  API CALLS
-        // ============================================================
-        async function apiCall(action, payload = {}) {
-            const body = { action, ...payload };
-            try {
-                const res = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return await res.json();
-            } catch (e) {
-                console.error('API error:', e);
-                throw new Error('Error de conexión con el servidor.');
-            }
-        }
-
-        // ============================================================
-        //  GESTIÓN DE MENÚS
-        // ============================================================
-
-        // Cargar menús (desde API o localStorage)
-        async function loadMenus(forceRefresh = false) {
-            let stored = null;
-            if (!forceRefresh) {
-                stored = loadMenusFromStorage();
-            }
-            if (stored && stored.length > 0 && !forceRefresh) {
-                menus = stored;
-                populateMenuSelect();
-                renderMenuList();
-                return;
+            // Mostrar email del usuario
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('userEmail').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
             }
 
-            try {
-                const data = await apiCall('getMenus');
-                if (data.success && data.menus) {
-                    menus = data.menus;
-                    saveMenusToStorage(menus);
-                    populateMenuSelect();
-                    renderMenuList();
-                    showToast('Menús actualizados');
-                } else {
-                    showToast('No se pudieron cargar los menús', 4000);
+            // Cargar datos del dashboard
+            async function loadDashboard() {
+                try {
+                    // Obtener ventas (máximo 10) con expand para nombre del menú
+                    const result = await pb.collection('sales').getList(1, 10, {
+                        sort: '-created',
+                        expand: 'menu_id'
+                    });
+                    const sales = result.items;
+
+                    // Mostrar últimas 10 ventas
+                    renderRecentSales(sales);
+
+                    // Calcular totales
+                    let total = 0, breakfast = 0, lunch = 0, dinner = 0;
+                    sales.forEach(s => {
+                        const totalItem = s.total || 0;
+                        total += totalItem;
+                        if (s.tipo_comida === 'breakfast') breakfast += totalItem;
+                        else if (s.tipo_comida === 'lunch') lunch += totalItem;
+                        else if (s.tipo_comida === 'dinner') dinner += totalItem;
+                    });
+                    document.getElementById('totalRevenue').textContent = `S/ ${total.toFixed(2)}`;
+                    document.getElementById('breakfastRevenue').textContent = `S/ ${breakfast.toFixed(2)}`;
+                    document.getElementById('lunchRevenue').textContent = `S/ ${lunch.toFixed(2)}`;
+                    document.getElementById('dinnerRevenue').textContent = `S/ ${dinner.toFixed(2)}`;
+
+                } catch (error) {
+                    document.getElementById('recentSales').innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
                 }
-            } catch (e) {
-                showToast('Error al cargar menús: ' + e.message, 4000);
-            }
-        }
-
-        // Poblar el select de ventas (filtrado por modo activo)
-        function populateMenuSelect() {
-            const filtered = activeMode ? menus.filter(m => m.tipo === activeMode) : menus;
-            menuSelect.innerHTML = '<option value="">Selecciona un plato</option>';
-            filtered.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item.id;
-                opt.textContent = `${item.nombre} (${formatCurrency(item.precio)})`;
-                menuSelect.appendChild(opt);
-            });
-            updatePriceDisplay();
-        }
-
-        // Renderizar lista de menús en el panel de administración
-        function renderMenuList() {
-            if (!menus || menus.length === 0) {
-                menuListContainer.innerHTML = `<p class="text-center text-gray-400 py-2 text-sm">No hay platos registrados.</p>`;
-                return;
-            }
-            let html = '';
-            menus.forEach(item => {
-                const badge = getTipoBadge(item.tipo);
-                const tipoLabel = getTipoLabel(item.tipo);
-                html += `
-                    <div class="menu-item">
-                        <div class="info">
-                            <div class="flex items-center gap-2">
-                                <span class="badge ${badge}">${tipoLabel}</span>
-                                <span class="font-medium">${item.nombre}</span>
-                            </div>
-                            <div class="text-sm text-gray-600">${formatCurrency(item.precio)}</div>
-                        </div>
-                        <div class="actions">
-                            <button class="btn-warning text-xs" onclick="editMenu('${item.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-danger text-xs" onclick="deleteMenu('${item.id}')">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            menuListContainer.innerHTML = html;
-        }
-
-        // Agregar o actualizar menú
-        menuForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const tipo = menuTipo.value;
-            const nombre = menuNombre.value.trim();
-            const precio = parseFloat(menuPrecio.value);
-            if (!nombre || isNaN(precio) || precio < 0) {
-                showToast('Nombre y precio válidos requeridos.', 3000);
-                return;
             }
 
-            const editId = editMenuId.value;
-            let action, payload;
-            if (editId) {
-                action = 'updateMenu';
-                payload = { id: editId, tipo, nombre, precio };
-            } else {
-                action = 'addMenu';
-                payload = { tipo, nombre, precio };
-            }
-
-            try {
-                const data = await apiCall(action, payload);
-                if (data.success) {
-                    showToast(data.message);
-                    resetMenuForm();
-                    await loadMenus(true); // recargar desde API y actualizar todo
-                } else {
-                    showToast('❌ ' + data.message, 4000);
+            function renderRecentSales(sales) {
+                const container = document.getElementById('recentSales');
+                if (!sales.length) {
+                    container.innerHTML = '<p class="text-gray-500 text-center">Aún no hay ventas</p>';
+                    return;
                 }
-            } catch (e) {
-                showToast('Error: ' + e.message, 4000);
-            }
-        });
-
-        // Editar menú (cargar datos en el formulario)
-        window.editMenu = function(id) {
-            const item = menus.find(m => m.id === id);
-            if (!item) return;
-            editingMenuId = id;
-            editMenuId.value = id;
-            menuTipo.value = item.tipo;
-            menuNombre.value = item.nombre;
-            menuPrecio.value = item.precio;
-            menuSubmitBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Actualizar';
-            cancelEditBtn.classList.remove('hidden');
-            // Abrir panel si está cerrado
-            if (menuAdminPanel.classList.contains('hidden')) {
-                toggleMenuAdmin.click();
-            }
-        };
-
-        // Cancelar edición
-        cancelEditBtn.addEventListener('click', resetMenuForm);
-
-        function resetMenuForm() {
-            editMenuId.value = '';
-            menuTipo.value = 'breakfast';
-            menuNombre.value = '';
-            menuPrecio.value = '';
-            menuSubmitBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Agregar';
-            cancelEditBtn.classList.add('hidden');
-            editingMenuId = null;
-        }
-
-        // Eliminar menú
-        window.deleteMenu = async function(id) {
-            if (!confirm('¿Eliminar este plato del menú?')) return;
-            try {
-                const data = await apiCall('deleteMenu', { id });
-                if (data.success) {
-                    showToast('🗑️ Menú eliminado');
-                    await loadMenus(true);
-                } else {
-                    showToast('❌ ' + data.message, 4000);
-                }
-            } catch (e) {
-                showToast('Error: ' + e.message, 4000);
-            }
-        };
-
-        // ============================================================
-        //  ACTIVAR MODO
-        // ============================================================
-        function setActiveMode(mode) {
-            activeMode = mode;
-            Object.keys(modeBtns).forEach(key => {
-                const btn = modeBtns[key];
-                if (key === mode) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-            if (mode) {
-                const labelMap = { breakfast: 'Desayuno', lunch: 'Almuerzo', dinner: 'Cena' };
-                currentModeLabel.textContent = labelMap[mode];
-                currentModeLabel.className = 'font-semibold text-blue-600';
-            } else {
-                currentModeLabel.textContent = 'Ninguno';
-                currentModeLabel.className = 'font-semibold text-gray-500';
-            }
-            populateMenuSelect();
-            menuSelect.value = '';
-            updatePriceDisplay();
-        }
-
-        // Eventos de modo
-        Object.keys(modeBtns).forEach(mode => {
-            modeBtns[mode].addEventListener('click', function() {
-                const newMode = this.dataset.mode;
-                if (activeMode === newMode) setActiveMode(null);
-                else setActiveMode(newMode);
-            });
-        });
-
-        // ============================================================
-        //  ACTUALIZAR PRECIO Y TOTAL (en venta)
-        // ============================================================
-        function updatePriceDisplay() {
-            const selectedId = menuSelect.value;
-            const qty = parseInt(quantityInput.value) || 0;
-            let precio = 0;
-            if (selectedId) {
-                const item = menus.find(m => m.id === selectedId);
-                if (item) precio = item.precio;
-            }
-            displayPrice.textContent = formatCurrency(precio);
-            displayTotal.textContent = formatCurrency(precio * qty);
-        }
-
-        menuSelect.addEventListener('change', updatePriceDisplay);
-        quantityInput.addEventListener('input', updatePriceDisplay);
-
-        // ============================================================
-        //  REGISTRAR VENTA
-        // ============================================================
-        saleForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const menuId = menuSelect.value;
-            const cantidad = parseInt(quantityInput.value) || 1;
-            const notas = notesInput.value.trim();
-
-            if (!menuId) {
-                showToast('Selecciona un plato del menú', 3000);
-                return;
-            }
-            if (!activeMode) {
-                showToast('Activa un tipo de comida (Desayuno/Almuerzo/Cena)', 3000);
-                return;
-            }
-
-            const item = menus.find(m => m.id === menuId);
-            if (!item || item.tipo !== activeMode) {
-                showToast('El plato no coincide con el modo activo', 3000);
-                return;
-            }
-
-            try {
-                const data = await apiCall('addSale', {
-                    tipo_comida: activeMode,
-                    menu_id: menuId,
-                    cantidad,
-                    notas
-                });
-                if (data.success) {
-                    showToast('✅ Venta registrada');
-                    notesInput.value = '';
-                    quantityInput.value = 1;
-                    await loadSales(currentFilter);
-                } else {
-                    showToast('❌ ' + data.message, 4000);
-                }
-            } catch (e) {
-                showToast('Error: ' + e.message, 4000);
-            }
-        });
-
-        // ============================================================
-        //  CARGAR VENTAS
-        // ============================================================
-        async function loadSales(filter = currentFilter) {
-            try {
-                const payload = {};
-                if (filter !== 'all') payload.tipo = filter;
-                const data = await apiCall('getSales', payload);
-                if (data.success && data.sales) {
-                    sales = data.sales;
-                    renderSales(sales);
-                    renderSummary(sales);
-                } else {
-                    sales = [];
-                    renderSales([]);
-                    renderSummary([]);
-                }
-            } catch (e) {
-                showToast('Error al cargar ventas: ' + e.message, 4000);
-            }
-        }
-
-        // ============================================================
-        //  RENDER VENTAS
-        // ============================================================
-        function renderSales(salesData) {
-            if (!salesData || salesData.length === 0) {
-                salesList.innerHTML = `<p class="text-center text-gray-400 py-4">No hay ventas.</p>`;
-                return;
-            }
-            const sorted = [...salesData].reverse();
-            let html = '';
-            sorted.forEach(sale => {
-                const menuItem = menus.find(m => m.id === sale.menu_id);
-                const nombrePlato = menuItem ? menuItem.nombre : 'Desconocido';
-                const badge = getTipoBadge(sale.tipo_comida);
-                const tipoLabel = getTipoLabel(sale.tipo_comida);
-                html += `
-                    <div class="border-b border-gray-100 py-3 flex items-start gap-2">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="badge ${badge}">${tipoLabel}</span>
-                                <span class="font-medium text-gray-800">${nombrePlato}</span>
+                let html = '';
+                sales.forEach(sale => {
+                    const menuName = sale.expand?.menu_id?.nombre || 'Desconocido';
+                    const tipoLabel = { breakfast: 'Desayuno', lunch: 'Almuerzo', dinner: 'Cena' }[sale.tipo_comida] || sale.tipo_comida;
+                    const fecha = new Date(sale.fecha).toLocaleString();
+                    html += `
+                        <div class="flex justify-between items-center bg-white/60 p-3 rounded-xl shadow-sm border border-gray-100">
+                            <div>
+                                <span class="font-semibold">${menuName}</span>
                                 <span class="text-sm text-gray-500">x${sale.cantidad}</span>
+                                <span class="text-xs text-gray-400 ml-2">${fecha}</span>
+                                <span class="text-xs bg-yellow-200 px-2 py-0.5 rounded-full ml-1">${tipoLabel}</span>
                             </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                ${sale.date} ${sale.time} 
-                                ${sale.notas ? '• ' + sale.notas : ''}
-                            </div>
-                            <div class="text-sm font-semibold text-gray-700">
-                                ${formatCurrency(sale.total)}
-                                <span class="font-normal text-gray-400 text-xs">(${formatCurrency(sale.precio_unitario)} c/u)</span>
-                            </div>
+                            <span class="font-bold text-pink-600">S/ ${(sale.total || 0).toFixed(2)}</span>
                         </div>
-                        <button onclick="deleteSale('${sale.id}')" class="btn-danger text-xs">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                `;
-            });
-            salesList.innerHTML = html;
-        }
-
-        function renderSummary(salesData) {
-            let totalVentas = 0, ingresos = 0;
-            salesData.forEach(s => {
-                totalVentas += s.cantidad || 0;
-                ingresos += s.total || 0;
-            });
-            totalCount.textContent = totalVentas;
-            totalRevenue.textContent = formatCurrency(ingresos);
-        }
-
-        // ============================================================
-        //  ELIMINAR VENTA
-        // ============================================================
-        window.deleteSale = async function(id) {
-            if (!confirm('¿Eliminar esta venta?')) return;
-            try {
-                const data = await apiCall('deleteSale', { id });
-                if (data.success) {
-                    showToast('🗑️ Venta eliminada');
-                    await loadSales(currentFilter);
-                } else {
-                    showToast('❌ ' + data.message, 4000);
-                }
-            } catch (e) {
-                showToast('Error: ' + e.message, 4000);
+                    `;
+                });
+                container.innerHTML = html;
             }
-        };
 
-        // ============================================================
-        //  FILTROS DE REPORTES
-        // ============================================================
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filter = this.dataset.filter;
-                currentFilter = filter;
-                filterBtns.forEach(b => b.classList.remove('bg-blue-500', 'text-white'));
-                this.classList.add('bg-blue-500', 'text-white');
-                loadSales(filter);
-            });
-        });
-        // Inicializar filtro "Todos"
-        document.querySelector('.filter-btn[data-filter="all"]').classList.add('bg-blue-500', 'text-white');
-
-        // ============================================================
-        //  TOGGLE PANEL DE ADMINISTRACIÓN DE MENÚS
-        // ============================================================
-        toggleMenuAdmin.addEventListener('click', function() {
-            menuAdminPanel.classList.toggle('hidden');
-            menuAdminIcon.classList.toggle('rotate-180');
-            if (!menuAdminPanel.classList.contains('hidden')) {
-                // Si se abre, recargar lista (por si hubo cambios externos)
-                renderMenuList();
-            }
-        });
-
-        // Botón recargar menús
-        refreshMenusBtn.addEventListener('click', async function() {
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Cargando...';
-            await loadMenus(true);
-            this.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Recargar desde Google';
-            this.disabled = false;
-            // Refrescar ventas para mostrar nombres actualizados
-            await loadSales(currentFilter);
-        });
-
-        // ============================================================
-        //  INICIALIZACIÓN
-        // ============================================================
-        async function init() {
-            await loadMenus(false);
-            setActiveMode(null);
-            await loadSales('all');
-            updatePriceDisplay();
-        }
-
-        init();
+            loadDashboard();
+        })();
     </script>
-
 </body>
 </html>
